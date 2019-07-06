@@ -59,7 +59,7 @@ var Common = require('../core/Common');
      * @param {boolean} forceUpdate
      */
     Grid.update = function(grid, bodies, engine, forceUpdate) {
-        var i, col, row,
+        var i,l, col, row,
             world = engine.world,
             buckets = grid.buckets,
             bucket,
@@ -71,7 +71,7 @@ var Common = require('../core/Common');
         metrics.broadphaseTests = 0;
         // @endif
 
-        for (i = 0; i < bodies.length; i++) {
+        for (i = 0,l=bodies.length; i < l; i++) {
             var body = bodies[i];
 
             if (body.isSleeping && !forceUpdate)
@@ -100,7 +100,7 @@ var Common = require('../core/Common');
                 // iterate over the union of both regions
                 for (col = union.startCol; col <= union.endCol; col++) {
                     for (row = union.startRow; row <= union.endRow; row++) {
-                        bucketId = Grid._getBucketId(col, row);
+                        bucketId = 'C' + col + 'R' + row;//Grid._getBucketId(col, row);
                         bucket = buckets[bucketId];
 
                         var isInsideNewRegion = (col >= newRegion.startCol && col <= newRegion.endCol
@@ -147,7 +147,8 @@ var Common = require('../core/Common');
     Grid.clear = function(grid) {
         grid.buckets = {};
         grid.pairs = {};
-        grid.pairsList = [];
+        // grid.pairsList = [];
+        grid.pairsList.length = 0;
     };
 
     /**
@@ -213,9 +214,9 @@ var Common = require('../core/Common');
      * @param {} row
      * @return {string} bucket id
      */
-    Grid._getBucketId = function(column, row) {
-        return 'C' + column + 'R' + row;
-    };
+    // Grid._getBucketId = function(column, row) {
+    //     return 'C' + column + 'R' + row;
+    // };
 
     /**
      * Creates a bucket.
@@ -275,7 +276,7 @@ var Common = require('../core/Common');
         bucket.splice(Common.indexOf(bucket, body), 1);
 
         // update pair counts
-        for (var i = 0; i < bucket.length; i++) {
+        for (var i = 0,l=bucket.length; i < l; i++) {
             // keep track of the number of buckets the pair exists in
             // important for _createActivePairsList to work
             var bodyB = bucket[i],
@@ -303,7 +304,7 @@ var Common = require('../core/Common');
         pairKeys = Common.keys(grid.pairs);
 
         // iterate over grid.pairs
-        for (var k = 0; k < pairKeys.length; k++) {
+        for (var k = 0,l=pairKeys.length; k < l; k++) {
             pair = grid.pairs[pairKeys[k]];
 
             // if pair exists in at least one bucket
