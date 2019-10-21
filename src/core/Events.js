@@ -12,7 +12,7 @@ module.exports = Events;
 
 var Common = require('./Common');
 
-(function() {
+(function () {
 
     /**
      * Subscribes a callback function to the given object's `eventName`.
@@ -21,17 +21,19 @@ var Common = require('./Common');
      * @param {string} eventNames
      * @param {function} callback
      */
-    Events.on = function(object, eventNames, callback) {
-        var names = eventNames.split(' '),
-            name;
+    Events.on = function (object, eventNames, callback) {
+        // var names = eventNames.split(' '),
+        //     name;
 
-        for (var i = 0; i < names.length; i++) {
-            name = names[i];
-            object.events = object.events || {};
-            object.events[name] = object.events[name] || [];
-            object.events[name].push(callback);
-        }
-
+        // for (var i = 0; i < names.length; i++) {
+        //     name = names[i];
+        //     object.events = object.events || {};
+        //     object.events[name] = object.events[name] || [];
+        //     object.events[name].push(callback);
+        // }
+        object.events = object.events || {};
+        object.events[eventNames] = object.events[eventNames] || [];
+        object.events[eventNames].push(callback);
         return callback;
     };
 
@@ -42,32 +44,38 @@ var Common = require('./Common');
      * @param {string} eventNames
      * @param {function} callback
      */
-    Events.off = function(object, eventNames, callback) {
-        if (!eventNames) {
-            object.events = {};
-            return;
-        }
-
+    Events.off = function (object, eventNames, callback) {
+        // if (!eventNames) {
+        //     object.events = {};
+        //     return;
+        // }
         // handle Events.off(object, callback)
-        if (typeof eventNames === 'function') {
-            callback = eventNames;
-            eventNames = Common.keys(object.events).join(' ');
-        }
+        // if (typeof eventNames === 'function') {
+        //     callback = eventNames;
+        //     eventNames = Common.keys(object.events).join(' ');
+        // }
 
-        var names = eventNames.split(' ');
+        // var names = eventNames.split(' ');
 
-        for (var i = 0; i < names.length; i++) {
-            var callbacks = object.events[names[i]],
-                newCallbacks = [];
+        // for (var i = 0; i < names.length; i++) {
+        //     var callbacks = object.events[names[i]],
+        //         newCallbacks = [];
 
-            if (callback && callbacks) {
-                for (var j = 0; j < callbacks.length; j++) {
-                    if (callbacks[j] !== callback)
-                        newCallbacks.push(callbacks[j]);
-                }
-            }
+        //     if (callback && callbacks) {
+        //         for (var j = 0; j < callbacks.length; j++) {
+        //             if (callbacks[j] !== callback)
+        //                 newCallbacks.push(callbacks[j]);
+        //         }
+        //     }
 
-            object.events[names[i]] = newCallbacks;
+        //     object.events[names[i]] = newCallbacks;
+        // }
+
+        if (object.events && object.events[eventNames]) {
+            // delete object.events[eventNames];
+            var idx = object.events[eventNames].indexOf(callback);
+            if(idx != -1)
+                object.events[eventNames].splice(idx,1);
         }
     };
 
@@ -78,33 +86,48 @@ var Common = require('./Common');
      * @param {string} eventNames
      * @param {} event
      */
-    Events.trigger = function(object, eventNames, event) {
-        var names,
-            name,
-            callbacks,
-            eventClone;
+    Events.trigger = function (object, eventNames, event) {
+        // var names,
+        //     name,
+        //     callbacks,
+        //     eventClone;
 
-        var events = object.events;
-        
-        if (events && Common.keys(events).length > 0) {
-            if (!event)
-                event = {};
+        // var events = object.events;
 
-            names = eventNames.split(' ');
+        // if (events && Common.keys(events).length > 0) {
+        //     if (!event)
+        //         event = {};
 
-            for (var i = 0; i < names.length; i++) {
-                name = names[i];
-                callbacks = events[name];
+        //     names = eventNames.split(' ');
 
-                if (callbacks) {
-                    eventClone = Common.clone(event, false);
-                    eventClone.name = name;
+        //     for (var i = 0; i < names.length; i++) {
+        //         name = names[i];
+        //         callbacks = events[name];
+
+        //         if (callbacks) {
+        //             eventClone = Common.clone(event, false);
+        //             eventClone.name = name;
+        //             eventClone.source = object;
+
+        //             for (var j = 0; j < callbacks.length; j++) {
+        //                 callbacks[j].apply(object, [eventClone]);
+        //             }
+        //         }
+        //     }
+        // }
+
+        if (object.events) {
+            var callbacks = object.events[eventNames];
+            if (callbacks) {
+                for(var i = 0,len = callbacks.length;i<len;++i)
+                {
+                    var callback = callbacks[i];
+                    var eventClone = Common.clone(event, false);
+                    eventClone.name = eventNames;
                     eventClone.source = object;
-
-                    for (var j = 0; j < callbacks.length; j++) {
-                        callbacks[j].apply(object, [eventClone]);
-                    }
+                    callback.apply(object, [eventClone]);
                 }
+
             }
         }
     };

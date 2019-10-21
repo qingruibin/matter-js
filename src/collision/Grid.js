@@ -11,7 +11,6 @@ module.exports = Grid;
 var Pair = require('./Pair');
 var Detector = require('./Detector');
 var Common = require('../core/Common');
-
 (function() {
 
     /**
@@ -100,7 +99,8 @@ var Common = require('../core/Common');
                 // iterate over the union of both regions
                 for (col = union.startCol; col <= union.endCol; col++) {
                     for (row = union.startRow; row <= union.endRow; row++) {
-                        bucketId = 'C' + col + 'R' + row;//Grid._getBucketId(col, row);
+                        //bucketId = 'C' + col + 'R' + row;//Grid._getBucketId(col, row);
+                        bucketId = col << 16 | row;
                         bucket = buckets[bucketId];
 
                         var isInsideNewRegion = (col >= newRegion.startCol && col <= newRegion.endCol
@@ -125,13 +125,15 @@ var Common = require('../core/Common');
                         }
                     }
                 }
-
+             
                 // set the new region
                 body.region = newRegion;
 
                 // flag changes so we can update pairs
                 gridChanged = true;
             }
+            
+         
         }
 
         // update pairs list only if pairs changed (i.e. a body changed region)
@@ -165,6 +167,7 @@ var Common = require('../core/Common');
             startRow = Math.min(regionA.startRow, regionB.startRow),
             endRow = Math.max(regionA.endRow, regionB.endRow);
 
+       
         return Grid._createRegion(startCol, endCol, startRow, endRow);
     };
 
@@ -182,7 +185,7 @@ var Common = require('../core/Common');
             endCol = Math.floor(bounds.max.x / grid.bucketWidth),
             startRow = Math.floor(bounds.min.y / grid.bucketHeight),
             endRow = Math.floor(bounds.max.y / grid.bucketHeight);
-
+            
         return Grid._createRegion(startCol, endCol, startRow, endRow);
     };
 
@@ -203,7 +206,7 @@ var Common = require('../core/Common');
             endCol: endCol, 
             startRow: startRow, 
             endRow: endRow 
-        };
+        };        
     };
 
     /**
@@ -241,7 +244,7 @@ var Common = require('../core/Common');
      */
     Grid._bucketAddBody = function(grid, bucket, body) {
         // add new pairs
-        for (var i = 0; i < bucket.length; i++) {
+        for (var i = 0,l=bucket.length; i < l; i++) {
             var bodyB = bucket[i];
 
             if (body.id === bodyB.id || (body.isStatic && bodyB.isStatic))
